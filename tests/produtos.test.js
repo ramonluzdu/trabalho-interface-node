@@ -17,9 +17,9 @@ describe("CRUD de produtos", () => {
     });
 
     test("cria, lista, consulta, atualiza e remove um produto", async () => {
-        const home = await request(app).get("/");
-        expect(home.status).toBe(200);
-        expect(home.text).toContain("Seu catálogo");
+        const rotaInexistente = await request(app).get("/");
+        expect(rotaInexistente.status).toBe(404);
+        expect(rotaInexistente.body).toEqual({ mensagem: "Rota não encontrada" });
 
         expect((await request(app).get("/produtos")).status).toBe(200);
         expect((await request(app).get("/produtos")).body).toEqual([]);
@@ -48,6 +48,25 @@ describe("CRUD de produtos", () => {
 
         expect((await request(app).delete(`/produtos/${criado.body.id}`)).status).toBe(204);
         expect((await request(app).get("/produtos")).body).toEqual([]);
+    });
+
+    test("retorna erros em JSON para requisições inválidas e falhas internas", async () => {
+        const jsonInvalido = await request(app)
+            .post("/produtos")
+            .set("Content-Type", "application/json")
+            .send("{");
+
+        expect(jsonInvalido.status).toBe(400);
+        expect(jsonInvalido.body).toEqual({ mensagem: "JSON inválido" });
+
+        const bancoComFalha = {
+            define: () => ({ findAll: async () => { throw new Error("falha simulada"); } })
+        };
+        const appComFalha = createApp({ sequelize: bancoComFalha });
+        const falhaInterna = await request(appComFalha).get("/produtos");
+
+        expect(falhaInterna.status).toBe(500);
+        expect(falhaInterna.body).toEqual({ mensagem: "Erro interno do servidor" });
     });
 
     test("rejeita dados inválidos ao criar e atualizar", async () => {
