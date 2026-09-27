@@ -26,7 +26,7 @@
       "lcovonly"
     ],
     "collectCoverageFrom": [
-      "src/app.js/**/*.js"
+      "src/**/*.js"
     ],
     "coverageThreshold": {
       "global": {

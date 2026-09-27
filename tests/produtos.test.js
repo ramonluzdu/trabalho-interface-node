@@ -1,6 +1,11 @@
 const { Sequelize } = require("sequelize");
 const request = require("supertest");
-const { createApp } = require("../src/app.js/app");
+const createApp = require("../src/api");
+const database = require("../src/database");
+
+test("configura SQLite como banco relacional", () => {
+    expect(database.getDialect()).toBe("sqlite");
+});
 
 describe("CRUD de produtos", () => {
     let sequelize;
@@ -8,7 +13,7 @@ describe("CRUD de produtos", () => {
 
     beforeEach(async () => {
         sequelize = new Sequelize({ dialect: "sqlite", storage: ":memory:", logging: false });
-        app = createApp({ sequelize });
+        app = createApp(sequelize);
         await sequelize.sync();
     });
 
@@ -62,7 +67,7 @@ describe("CRUD de produtos", () => {
         const bancoComFalha = {
             define: () => ({ findAll: async () => { throw new Error("falha simulada"); } })
         };
-        const appComFalha = createApp({ sequelize: bancoComFalha });
+        const appComFalha = createApp(bancoComFalha);
         const falhaInterna = await request(appComFalha).get("/produtos");
 
         expect(falhaInterna.status).toBe(500);
@@ -74,6 +79,11 @@ describe("CRUD de produtos", () => {
         expect((await request(app).post("/produtos").send({ nome: "  ", preco: 10 })).status).toBe(400);
         expect((await request(app).post("/produtos").send({ nome: "Cabo", preco: -1 })).status).toBe(400);
         expect((await request(app).post("/produtos").send({ nome: "Cabo", preco: "10" })).status).toBe(400);
+        const precoInfinito = await request(app)
+            .post("/produtos")
+            .set("Content-Type", "application/json")
+            .send('{"nome":"Cabo","preco":1e400}');
+        expect(precoInfinito.status).toBe(400);
 
         const criado = await request(app).post("/produtos").send({ nome: "Cabo", preco: 10 });
         const resposta = await request(app)
@@ -88,7 +98,9 @@ describe("CRUD de produtos", () => {
         expect((await request(app).get("/produtos/abc")).status).toBe(404);
         expect((await request(app).get("/produtos/0")).status).toBe(404);
         expect((await request(app).get("/produtos/99")).status).toBe(404);
+        expect((await request(app).put("/produtos/abc").send({ nome: "Item", preco: 1 })).status).toBe(404);
         expect((await request(app).put("/produtos/99").send({ nome: "Item", preco: 1 })).status).toBe(404);
+        expect((await request(app).delete("/produtos/abc")).status).toBe(404);
         expect((await request(app).delete("/produtos/99")).status).toBe(404);
     });
 });

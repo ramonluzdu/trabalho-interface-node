@@ -1,7 +1,7 @@
-const { database } = require("./src/app.js/database");
-const { createApp } = require("./src/app.js/app");
+const database = require("./src/database");
+const createApp = require("./src/api");
 
-const app = createApp({ sequelize: database });
+const app = createApp(database);
 
 async function start() {
     await database.sync();

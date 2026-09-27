@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
-function defineProduto(sequelize) {
-    return sequelize.define("Produto", {
+function defineProduto(database) {
+    return database.define("Produto", {
         nome: {
             type: DataTypes.STRING,
             allowNull: false,
