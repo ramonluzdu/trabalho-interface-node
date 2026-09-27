@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest --coverage --runInBand"
   },
   "repository": {
     "type": "git",
@@ -18,11 +20,29 @@
     "url": "https://github.com/RamonLuz-Dev/javascript-marinke/issues"
   },
   "homepage": "https://github.com/RamonLuz-Dev/javascript-marinke#readme",
+  "jest": {
+    "collectCoverageFrom": [
+      "src/app.js/**/*.js",
+      "!src/app.js/app.,js/**"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 91,
+        "functions": 91,
+        "lines": 91,
+        "statements": 91
+      }
+    }
+  },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.3.0"
   },
   "dependencies": {
     "express": "^5.2.1",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^6.0.1",
     "typescript": "^7.0.2"
   }
 }

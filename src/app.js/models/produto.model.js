@@ -1,26 +1,18 @@
-class Produto {
-    constructor({ id, nome, preco }) {
-        this.id = id;
-        this.nome = nome;
-        this.preco = preco;
-    }
+const { DataTypes } = require("sequelize");
 
-    estaEmPromocao() {
-        return this.preco < 100;
-    }
+function defineProduto(sequelize) {
+    return sequelize.define("Produto", {
+        nome: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        preco: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            validate: { min: 0, isFloat: true }
+        }
+    });
 }
 
-Produto.produtos = [
-    new Produto({
-        id: 1,
-        nome: "Notebook",
-        preco: 3500
-    }),
-    new Produto({
-        id: 2,
-        nome: "Mouse",
-        preco: 120
-    })
-];
-
-module.exports = Produto;
+module.exports = defineProduto;

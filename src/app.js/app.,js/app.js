@@ -1,9 +1,10 @@
-const express = require("express");
-const produtoRoutes = require ("./routes/produto.routes");
+const { app, start } = require("../../../index");
 
-const app = express();
+if (require.main === module) {
+	start().catch((error) => {
+		console.error("Não foi possível iniciar o servidor:", error);
+		process.exitCode = 1;
+	});
+}
 
-app.use(express.json());
-app.use("/produtos", produtoRoutes);
-
-app.listen(3000);
+module.exports = app;
